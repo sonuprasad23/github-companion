@@ -65,7 +65,7 @@ const parseMarkdown = (text: string) => {
 };
 
 interface ChatMessageProps {
-    message: { id: number; role: 'user' | 'assistant'; content: string };
+    message: { id: number; role: 'user' | 'assistant'; content: string | undefined };
     isFinished: boolean;
     onFinished: () => void;
     isLoading?: boolean;
@@ -75,7 +75,7 @@ export function ChatMessage({ message, isFinished, onFinished, isLoading = false
   const { role, content } = message;
   const isUser = role === 'user';
   
-  const safeContent = content || '';
+  const safeContent = content ?? '';
   const parsedContent = useMemo(() => parseMarkdown(safeContent), [safeContent]);
   const typewriterContent = useTypewriter(safeContent, isFinished, onFinished);
   const parsedTypewriterContent = useMemo(() => parseMarkdown(typewriterContent), [typewriterContent]);
