@@ -75,8 +75,9 @@ export function ChatMessage({ message, isFinished, onFinished, isLoading = false
   const { role, content } = message;
   const isUser = role === 'user';
   
-  const parsedContent = useMemo(() => parseMarkdown(content), [content]);
-  const typewriterContent = useTypewriter(content, isFinished, onFinished);
+  const safeContent = content || '';
+  const parsedContent = useMemo(() => parseMarkdown(safeContent), [safeContent]);
+  const typewriterContent = useTypewriter(safeContent, isFinished, onFinished);
   const parsedTypewriterContent = useMemo(() => parseMarkdown(typewriterContent), [typewriterContent]);
 
   const contentToRender = isUser ? parsedContent : (isFinished ? parsedContent : parsedTypewriterContent);
@@ -88,7 +89,7 @@ export function ChatMessage({ message, isFinished, onFinished, isLoading = false
       </div>
       <div className="flex-1 pt-1.5">
         {isLoading ? (
-            <span className="animate-pulse">{content}</span>
+            <span className="animate-pulse">{safeContent}</span>
         ) : (
           contentToRender.map((part, index) => {
               if (part.type === 'code') {
