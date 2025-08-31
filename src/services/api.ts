@@ -29,7 +29,7 @@ export async function fetchResults(session_id: string): Promise<AnalysisResultDa
   return response.json();
 }
 
-export async function postChatMessage(session_id: string, query: string, pinned_files: string[]): Promise<{ answer: string }> {
+export async function postChatMessage(session_id: string, query: string, pinned_files: string[] = []): Promise<{ answer: string }> {
   const response = await fetch(`${API_BASE_URL}/chat/${session_id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Pin, X } from 'lucide-react';
 import { postChatMessage } from '../../services/api';
 import { ChatMessage } from './ChatMessage';
 
@@ -9,6 +9,8 @@ interface PanelProps {
   onTabChange: (tab: string) => void;
   repoSummary: string;
   sessionId: string;
+  pinnedFiles: string[];
+  onPinToggle: (filePath: string) => void;
 }
 
 interface Message {
@@ -17,7 +19,7 @@ interface Message {
   content: string;
 }
 
-export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId }: PanelProps) {
+export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId, pinnedFiles, onPinToggle }: PanelProps) {
   const [userInput, setUserInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +40,7 @@ export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId }
     setIsLoading(true);
 
     try {
-      const response = await postChatMessage(sessionId, userInput);
+      const response = await postChatMessage(sessionId, userInput, pinnedFiles);
       const newAssistantMessage: Message = { 
         id: Date.now() + 1, 
         role: 'assistant', 
@@ -107,7 +109,21 @@ export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId }
                 />
               )}
             </div>
-            <div className="p-3 border-t border-[#30363d]">
+            
+            <div className="p-3 border-t border-[#30363d] space-y-2">
+                {pinnedFiles.length > 0 && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <Pin size={14} className="text-gray-400 flex-shrink-0" />
+                        {pinnedFiles.map(file => (
+                            <div key={file} className="flex items-center gap-1.5 bg-[#21262d] text-xs text-gray-300 px-2 py-1 rounded">
+                                <span>{file.split('/').pop()}</span>
+                                <button onClick={() => onPinToggle(file)} className="text-gray-500 hover:text-white">
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
               <div className="flex items-center bg-[#0d1117] rounded-md border border-[#30363d] focus-within:border-[#2f81f7] focus-within:ring-1 focus-within:ring-[#2f81f7]">
                 <input
                   type="text"
