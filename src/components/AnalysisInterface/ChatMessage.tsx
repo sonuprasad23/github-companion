@@ -58,24 +58,30 @@ const parseMarkdown = (text: string) => {
   return parts.filter(part => part.length > 0).map((part) => {
     const codeMatch = part.match(/``````/);
     if (codeMatch) {
-      return { type: 'code', language: codeMatch[1] || 'bash', content: codeMatch[2].trim() };
+      return { type: 'code' as const, language: codeMatch[1] || 'bash', content: codeMatch[2].trim() };
     }
-    return { type: 'text', content: part };
+    return { type: 'text' as const, content: part };
   });
 };
 
+interface Message {
+  id: number;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 interface ChatMessageProps {
-    message: { id: number; role: 'user' | 'assistant'; content: string };
-    isFinished: boolean;
-    onFinished: () => void;
-    isLoading?: boolean;
+  message: Message;
+  isFinished: boolean;
+  onFinished: () => void;
+  isLoading?: boolean;
 }
 
 export function ChatMessage({ message, isFinished, onFinished, isLoading = false }: ChatMessageProps) {
   const { role, content } = message;
   const isUser = role === 'user';
   
-  const safeContent = content || '';
+  const safeContent = String(content || '');
   const parsedContent = useMemo(() => parseMarkdown(safeContent), [safeContent]);
   const typewriterContent = useTypewriter(safeContent, isFinished, onFinished);
   const parsedTypewriterContent = useMemo(() => parseMarkdown(typewriterContent), [typewriterContent]);
@@ -89,21 +95,25 @@ export function ChatMessage({ message, isFinished, onFinished, isLoading = false
       </div>
       <div className="flex-1 pt-1.5">
         {isLoading ? (
-            <span className="animate-pulse">{safeContent}</span>
+          <span className="animate-pulse">{safeContent}</span>
         ) : (
           contentToRender.map((part, index) => {
-              if (part.type === 'code') {
-                return <CodeBlock key={index} language={part.language} code={part.content} />;
-              }
-              const textWithLists = part.content.split('\n').map((line, lineIndex) => {
-                const trimmedLine = line.trim();
-                if (trimmedLine.startsWith('* ')) {
-                  return <li key={lineIndex} className="ml-4 list-disc font-sans">{trimmedLine.substring(2)}</li>;
-                }
-                return <span key={lineIndex} className="font-sans text-gray-300 leading-relaxed">{line}<br/></span>;
-              });
-              return <div key={index}>{textWithLists}</div>;
-            })
+            if (part.type === 'code') {
+              return <CodeBlock key={index} language={part.language} code={part.content} />;
+            }
+            const lines = part.content.split('\n');
+            return (
+              <div key={index}>
+                {lines.map((line, lineIndex) => {
+                  const trimmedLine = line.trim();
+                  if (trimmedLine.startsWith('* ')) {
+                    return <li key={lineIndex} className="ml-4 list-disc font-sans">{trimmedLine.substring(2)}</li>;
+                  }
+                  return <span key={lineIndex} className="font-sans text-gray-300 leading-relaxed">{line}<br/></span>;
+                })}
+              </div>
+            );
+          })
         )}
       </div>
     </div>

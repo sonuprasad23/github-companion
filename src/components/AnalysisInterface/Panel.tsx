@@ -11,11 +11,11 @@ interface PanelProps {
   sessionId: string;
 }
 
-type Message = {
+interface Message {
   id: number;
   role: 'user' | 'assistant';
   content: string;
-};
+}
 
 export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId }: PanelProps) {
   const [userInput, setUserInput] = useState('');
@@ -26,7 +26,12 @@ export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId }
   const handleSendMessage = async () => {
     if (!userInput.trim() || isLoading) return;
 
-    const newUserMessage: Message = { id: Date.now(), role: 'user', content: userInput };
+    const newUserMessage: Message = { 
+      id: Date.now(), 
+      role: 'user', 
+      content: String(userInput) 
+    };
+    
     setFinishedMessageIds(prev => new Set(prev).add(newUserMessage.id));
     setChatHistory(prev => [...prev, newUserMessage]);
     setUserInput('');
@@ -34,10 +39,18 @@ export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId }
 
     try {
       const response = await postChatMessage(sessionId, userInput);
-      const newAssistantMessage: Message = { id: Date.now() + 1, role: 'assistant', content: response.answer || '' };
+      const newAssistantMessage: Message = { 
+        id: Date.now() + 1, 
+        role: 'assistant', 
+        content: String(response.answer || 'No response received.') 
+      };
       setChatHistory(prev => [...prev, newAssistantMessage]);
     } catch (error) {
-      const errorMessage: Message = { id: Date.now() + 1, role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' };
+      const errorMessage: Message = { 
+        id: Date.now() + 1, 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      };
       setChatHistory(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -85,7 +98,14 @@ export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId }
                   onFinished={() => handleTypingFinished(msg.id)}
                 />
               ))}
-              {isLoading && <ChatMessage message={{id: 0, role: 'assistant', content: 'Thinking...'}} isLoading={true} isFinished={false} onFinished={() => {}} />}
+              {isLoading && (
+                <ChatMessage 
+                  message={{id: 0, role: 'assistant', content: 'Thinking...'}} 
+                  isLoading={true} 
+                  isFinished={false} 
+                  onFinished={() => {}} 
+                />
+              )}
             </div>
             <div className="p-3 border-t border-[#30363d]">
               <div className="flex items-center bg-[#0d1117] rounded-md border border-[#30363d] focus-within:border-[#2f81f7] focus-within:ring-1 focus-within:ring-[#2f81f7]">
