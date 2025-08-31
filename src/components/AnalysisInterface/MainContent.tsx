@@ -1,7 +1,6 @@
 import { useRef, useEffect } from 'react';
 import Editor from 'react-simple-code-editor';
 import Prism from 'prismjs';
-// Prism language imports...
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-typescript';
@@ -12,8 +11,8 @@ import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-markdown';
 
-import { X, Download, Loader } from 'lucide-react';
-import { FileIcon } from './FileIcon';
+import { File, FileIcon } from './FileIcon'; // Imported FileIcon but not using File from lucide-react
+import { Download, Loader } from 'lucide-react'; // Imported Download and Loader
 
 interface MainContentProps {
   openFiles: string[];
@@ -39,7 +38,6 @@ export function MainContent({
   isDownloading,
 }: MainContentProps) {
   
-  // getLanguage function remains the same...
   const getLanguage = (filename: string): string => {
     const extension = filename.split('.').pop() || '';
     switch (extension) {

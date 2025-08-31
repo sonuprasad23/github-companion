@@ -59,7 +59,7 @@ export function App() {
   const handleError = (message: string) => {
     setErrorMessage(message);
     setAppState('error');
-    setTimeout(() => setAppState('initial'), 5000); // Reset after 5s
+    setTimeout(() => setAppState('initial'), 5000);
   };
 
   const renderContent = () => {
@@ -73,7 +73,7 @@ export function App() {
         handleError("Analysis result is missing.");
         return <InitialState onAnalyze={handleAnalyze} />;
       case 'error':
-        return <LoadingState status={errorMessage} isError={true} />;
+        return <LoadingState status={errorMessage} />; // Removed isError prop, handled internally
       case 'initial':
       default:
         return <InitialState onAnalyze={handleAnalyze} />;

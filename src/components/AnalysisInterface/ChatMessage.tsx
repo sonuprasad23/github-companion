@@ -75,8 +75,8 @@ export function ChatMessage({ message, isFinished, onFinished, isLoading = false
   const { role, content } = message;
   const isUser = role === 'user';
   
-  const parsedContent = useMemo(() => parseMarkdown(content), [content]);
-  const typewriterContent = useTypewriter(content, isFinished, onFinished);
+  const parsedContent = useMemo(() => parseMarkdown(content || ''), [content]);
+  const typewriterContent = useTypewriter(content || '', isFinished, onFinished);
   const parsedTypewriterContent = useMemo(() => parseMarkdown(typewriterContent), [typewriterContent]);
 
   const contentToRender = isUser ? parsedContent : (isFinished ? parsedContent : parsedTypewriterContent);

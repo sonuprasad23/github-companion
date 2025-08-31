@@ -5,7 +5,7 @@ import { MainContent } from './MainContent';
 import { Panel } from './Panel';
 import { AnalysisResultData } from '../../types';
 import { fetchFileContent, downloadProjectAsZip } from '../../services/api';
-import { Download } from 'lucide-react';
+import { Download, Loader } from 'lucide-react';
 
 interface AnalysisInterfaceProps {
   analysisResult: AnalysisResultData;
@@ -19,7 +19,6 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
   const [activeFile, setActiveFile] = useState<string | null>(null);
   const [fileContents, setFileContents] = useState<Record<string, string>>({});
   const [dirtyFiles, setDirtyFiles] = useState<Set<string>>(new Set());
-  const [isDownloading, setIsDownloading] = useState(false);
 
   const [sidebarWidth, setSidebarWidth] = useState(280);
   const [panelHeight, setPanelHeight] = useState(300);
@@ -56,7 +55,6 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
   };
   
   const handleDownload = async () => {
-    setIsDownloading(true);
     try {
         const modified_files = Array.from(dirtyFiles).map(path => ({
             path,
@@ -76,15 +74,65 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
 
     } catch (error) {
         console.error("Download failed:", error);
-        // You can add a user-facing error notification here
-    } finally {
-        setIsDownloading(false);
     }
   };
 
 
   useEffect(() => {
-    // Resizing logic remains the same...
+    const handleResize = (
+      e: MouseEvent,
+      setter: React.Dispatch<React.SetStateAction<number>>,
+      startPos: number,
+      startSize: number,
+      dimension: 'width' | 'height'
+    ) => {
+      const delta = dimension === 'width' ? e.clientX - startPos : startPos - e.clientY;
+      const newSize = startSize + delta;
+      const minSize = dimension === 'width' ? 200 : 100;
+      const maxSize = dimension === 'width' ? 500 : (containerRef.current?.clientHeight ?? 800) / 2;
+      setter(Math.max(minSize, Math.min(newSize, maxSize)));
+    };
+
+    const setupResizer = (
+      resizer: HTMLElement,
+      setter: React.Dispatch<React.SetStateAction<number>>,
+      dimension: 'width' | 'height'
+    ) => {
+      const startResize = (e: MouseEvent) => {
+        e.preventDefault();
+        const startPos = dimension === 'width' ? e.clientX : e.clientY;
+        const startSize = dimension === 'width' ? sidebarWidth : panelHeight;
+        
+        const onMouseMove = (moveEvent: MouseEvent) => handleResize(moveEvent, setter, startPos, startSize, dimension);
+        const onMouseUp = () => {
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+          document.body.style.cursor = '';
+          document.body.style.userSelect = '';
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        document.body.style.cursor = dimension === 'width' ? 'ew-resize' : 'ns-resize';
+        document.body.style.userSelect = 'none';
+      };
+      resizer.addEventListener('mousedown', startResize);
+      return () => resizer.removeEventListener('mousedown', startResize);
+    };
+
+    const sidebarResizer = document.getElementById('sidebar-resizer');
+    const panelResizer = document.getElementById('panel-resizer');
+
+    let sidebarCleanup: () => void = () => {};
+    let panelCleanup: () => void = () => {};
+
+    if (sidebarResizer && showSidebar) sidebarCleanup = setupResizer(sidebarResizer, setSidebarWidth, 'width');
+    if (panelResizer) panelCleanup = setupResizer(panelResizer, setPanelHeight, 'height');
+
+    return () => {
+      sidebarCleanup();
+      panelCleanup();
+    };
   }, [sidebarWidth, panelHeight, showSidebar]);
 
   return (
