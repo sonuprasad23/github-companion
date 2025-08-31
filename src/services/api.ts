@@ -1,6 +1,5 @@
 import { AnalysisResultData } from '../types';
 
-// Use the environment variable for the backend URL, with a fallback for local development
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
 type ModifiedFile = {
@@ -30,11 +29,11 @@ export async function fetchResults(session_id: string): Promise<AnalysisResultDa
   return response.json();
 }
 
-export async function postChatMessage(session_id: string, query: string): Promise<{ answer: string }> {
+export async function postChatMessage(session_id: string, query: string, pinned_files: string[]): Promise<{ answer: string }> {
   const response = await fetch(`${API_BASE_URL}/chat/${session_id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query, pinned_files }),
   });
   if (!response.ok) throw new Error('Failed to get chat response.');
   return response.json();
