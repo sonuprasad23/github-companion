@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { ActivityBar } from './ActivityBar';
 import { SideBar } from './SideBar';
 import { MainContent } from './MainContent';
@@ -20,8 +20,8 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
   const [dirtyFiles, setDirtyFiles] = useState<Set<string>>(new Set());
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const [sidebarWidth, setSidebarWidth] = useState(280);
-  const [panelHeight, setPanelHeight] = useState(300);
+  const [sidebarWidth] = useState(280);
+  const [panelHeight] = useState(300);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -79,10 +79,6 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
         setIsDownloading(false);
     }
   };
-
-  useEffect(() => {
-    // Resizing logic...
-  }, [sidebarWidth, panelHeight, showSidebar]);
 
   return (
     <div className="w-full flex-1 flex overflow-hidden" ref={containerRef}>

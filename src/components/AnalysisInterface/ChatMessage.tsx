@@ -11,7 +11,7 @@ const useTypewriter = (text: string, isFinished: boolean, onFinished: () => void
       return;
     }
 
-    setDisplayText(''); // Reset on new message
+    setDisplayText('');
     let i = 0;
     const intervalId = setInterval(() => {
       if (i < text.length) {
@@ -19,7 +19,7 @@ const useTypewriter = (text: string, isFinished: boolean, onFinished: () => void
         i++;
       } else {
         clearInterval(intervalId);
-        onFinished(); // Signal that this message is done typing
+        onFinished();
       }
     }, speed);
 
@@ -54,9 +54,9 @@ const CodeBlock = ({ language, code }: { language: string, code: string }) => {
 };
 
 const parseMarkdown = (text: string) => {
-  const parts = text.split(/(```[\s\S]*?```)/g);
+  const parts = text.split(/(``````)/g);
   return parts.filter(part => part.length > 0).map((part) => {
-    const codeMatch = part.match(/```(\w+)?\n([\s\S]*?)```/);
+    const codeMatch = part.match(/``````/);
     if (codeMatch) {
       return { type: 'code', language: codeMatch[1] || 'bash', content: codeMatch[2].trim() };
     }
@@ -75,8 +75,9 @@ export function ChatMessage({ message, isFinished, onFinished, isLoading = false
   const { role, content } = message;
   const isUser = role === 'user';
   
-  const parsedContent = useMemo(() => parseMarkdown(content || ''), [content]);
-  const typewriterContent = useTypewriter(content || '', isFinished, onFinished);
+  const safeContent = content || '';
+  const parsedContent = useMemo(() => parseMarkdown(safeContent), [safeContent]);
+  const typewriterContent = useTypewriter(safeContent, isFinished, onFinished);
   const parsedTypewriterContent = useMemo(() => parseMarkdown(typewriterContent), [typewriterContent]);
 
   const contentToRender = isUser ? parsedContent : (isFinished ? parsedContent : parsedTypewriterContent);
@@ -88,7 +89,7 @@ export function ChatMessage({ message, isFinished, onFinished, isLoading = false
       </div>
       <div className="flex-1 pt-1.5">
         {isLoading ? (
-            <span className="animate-pulse">{content}</span>
+            <span className="animate-pulse">{safeContent}</span>
         ) : (
           contentToRender.map((part, index) => {
               if (part.type === 'code') {
