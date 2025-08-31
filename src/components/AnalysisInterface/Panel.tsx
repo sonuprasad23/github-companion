@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Send } from 'lucide-react';
 import { postChatMessage } from '../../services/api';
 import { ChatMessage } from './ChatMessage';
 
+// ... rest of the file is unchanged
 interface PanelProps {
   height: number;
   activeTab: string;
@@ -27,7 +28,6 @@ export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId }
     if (!userInput.trim() || isLoading) return;
 
     const newUserMessage: Message = { id: Date.now(), role: 'user', content: userInput };
-    // User messages are instantly "finished"
     setFinishedMessageIds(prev => new Set(prev).add(newUserMessage.id));
     setChatHistory(prev => [...prev, newUserMessage]);
     setUserInput('');
