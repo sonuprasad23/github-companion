@@ -1,4 +1,3 @@
-import { useRef, useEffect } from 'react';
 import Editor from 'react-simple-code-editor';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-clike';
@@ -11,8 +10,8 @@ import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-markdown';
 
-import { File, FileIcon } from './FileIcon'; // Imported FileIcon but not using File from lucide-react
-import { Download, Loader } from 'lucide-react'; // Imported Download and Loader
+import { X, Download, Loader } from 'lucide-react'; // CORRECTED: Added X back
+import { FileIcon } from './FileIcon'; // CORRECTED: Removed unused File import
 
 interface MainContentProps {
   openFiles: string[];
