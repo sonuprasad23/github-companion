@@ -3,7 +3,6 @@ import { Send } from 'lucide-react';
 import { postChatMessage } from '../../services/api';
 import { ChatMessage } from './ChatMessage';
 
-// ... rest of the file is unchanged
 interface PanelProps {
   height: number;
   activeTab: string;
@@ -35,7 +34,7 @@ export function Panel({ height, activeTab, onTabChange, repoSummary, sessionId }
 
     try {
       const response = await postChatMessage(sessionId, userInput);
-      const newAssistantMessage: Message = { id: Date.now() + 1, role: 'assistant', content: response.answer };
+      const newAssistantMessage: Message = { id: Date.now() + 1, role: 'assistant', content: response.answer || '' };
       setChatHistory(prev => [...prev, newAssistantMessage]);
     } catch (error) {
       const errorMessage: Message = { id: Date.now() + 1, role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' };

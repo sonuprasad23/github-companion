@@ -65,7 +65,7 @@ const parseMarkdown = (text: string) => {
 };
 
 interface ChatMessageProps {
-    message: { id: number; role: 'user' | 'assistant'; content: string | undefined };
+    message: { id: number; role: 'user' | 'assistant'; content: string };
     isFinished: boolean;
     onFinished: () => void;
     isLoading?: boolean;
@@ -75,37 +75,8 @@ export function ChatMessage({ message, isFinished, onFinished, isLoading = false
   const { role, content } = message;
   const isUser = role === 'user';
   
-  const safeContent = content ?? '';
-  const parsedContent = useMemo(() => parseMarkdown(safeContent), [safeContent]);
-  const typewriterContent = useTypewriter(safeContent, isFinished, onFinished);
+  const parsedContent = useMemo(() => parseMarkdown(content), [content]);
+  const typewriterContent = useTypewriter(content, isFinished, onFinished);
   const parsedTypewriterContent = useMemo(() => parseMarkdown(typewriterContent), [typewriterContent]);
 
-  const contentToRender = isUser ? parsedContent : (isFinished ? parsedContent : parsedTypewriterContent);
-
-  return (
-    <div className="flex items-start gap-3 text-sm">
-      <div className="w-8 h-8 rounded-full bg-[#30363d] flex items-center justify-center flex-shrink-0 mt-1">
-        {isUser ? <User size={18} /> : <Terminal size={18} />}
-      </div>
-      <div className="flex-1 pt-1.5">
-        {isLoading ? (
-            <span className="animate-pulse">{safeContent}</span>
-        ) : (
-          contentToRender.map((part, index) => {
-              if (part.type === 'code') {
-                return <CodeBlock key={index} language={part.language} code={part.content} />;
-              }
-              const textWithLists = part.content.split('\n').map((line, lineIndex) => {
-                const trimmedLine = line.trim();
-                if (trimmedLine.startsWith('* ')) {
-                  return <li key={lineIndex} className="ml-4 list-disc font-sans">{trimmedLine.substring(2)}</li>;
-                }
-                return <span key={lineIndex} className="font-sans text-gray-300 leading-relaxed">{line}<br/></span>;
-              });
-              return <div key={index}>{textWithLists}</div>;
-            })
-        )}
-      </div>
-    </div>
-  );
-}
+  const contentToRender = isUser ? parsedContent
