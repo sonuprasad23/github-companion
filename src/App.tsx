@@ -21,7 +21,7 @@ export function App() {
     try {
       const { session_id } = await startAnalysis(url);
       setSessionId(session_id);
-      
+
       const poll = setInterval(async () => {
         try {
           const statusData = await pollStatus(session_id);
@@ -73,7 +73,7 @@ export function App() {
         handleError("Analysis result is missing.");
         return <InitialState onAnalyze={handleAnalyze} />;
       case 'error':
-        return <LoadingState status={errorMessage} />; // Removed isError prop, handled internally
+        return <LoadingState status={errorMessage} />;
       case 'initial':
       default:
         return <InitialState onAnalyze={handleAnalyze} />;
@@ -81,11 +81,20 @@ export function App() {
   };
 
   return (
-    <div className="flex flex-col w-full h-screen bg-[#0d1117] text-[#c9d1d9] font-sans">
-      <Header />
-      <main className="flex-1 flex overflow-hidden">
-        {renderContent()}
-      </main>
+    <div className="relative min-h-screen bg-background text-text-primary font-sans overflow-hidden selection:bg-primary/30 selection:text-white">
+      {/* Background Ambience */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-blob" />
+        <div className="absolute top-[20%] right-[-10%] w-[30%] h-[30%] bg-secondary/20 rounded-full blur-[100px] animate-blob animation-delay-2000" />
+        <div className="absolute bottom-[-10%] left-[20%] w-[30%] h-[30%] bg-accent/20 rounded-full blur-[100px] animate-blob animation-delay-4000" />
+      </div>
+
+      <div className="relative z-10 flex flex-col h-screen">
+        <Header />
+        <main className="flex-1 flex overflow-hidden">
+          {renderContent()}
+        </main>
+      </div>
     </div>
   );
 }

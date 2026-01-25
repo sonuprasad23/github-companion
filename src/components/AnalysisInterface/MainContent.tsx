@@ -10,8 +10,8 @@ import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-markdown';
 
-import { X, Download, Loader } from 'lucide-react'; // CORRECTED: Added X back
-import { FileIcon } from './FileIcon'; // CORRECTED: Removed unused File import
+import { X, Download, Loader, Code2 } from 'lucide-react';
+import { FileIcon } from './FileIcon';
 
 interface MainContentProps {
   openFiles: string[];
@@ -36,7 +36,7 @@ export function MainContent({
   onDownload,
   isDownloading,
 }: MainContentProps) {
-  
+
   const getLanguage = (filename: string): string => {
     const extension = filename.split('.').pop() || '';
     switch (extension) {
@@ -56,82 +56,96 @@ export function MainContent({
   const language = activeFile ? getLanguage(activeFile) : 'clike';
   const lineCount = currentContent.split('\n').length;
 
-  const highlightCode = (code: string) => 
+  const highlightCode = (code: string) =>
     Prism.highlight(code, Prism.languages[language] || Prism.languages.clike, language);
 
   return (
-    <div className="h-full w-full flex flex-col bg-[#0d1117]">
-      <div className="flex-shrink-0 bg-[#161b22] border-b border-[#30363d] flex justify-between items-center">
-        <div className="flex overflow-x-auto">
-            {openFiles.map(file => {
-              const isActive = file === activeFile;
-              return (
-                <div
-                  key={file}
-                  className={`flex items-center py-2 px-4 border-r border-[#30363d] cursor-pointer whitespace-nowrap ${isActive ? 'bg-[#0d1117] text-white' : 'text-[#8b949e] hover:bg-[#21262d]'}`}
-                  onClick={() => onFileSelect(file)}
-                >
-                  <FileIcon filename={file} />
-                  <span className="text-sm ml-2">{file.split('/').pop()}</span>
-                  {dirtyFiles.has(file) && <div className="w-2 h-2 rounded-full bg-yellow-400 ml-2" title="Unsaved changes"></div>}
-                  <button
-                    className="ml-3 p-0.5 rounded-sm hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9]"
-                    onClick={e => { e.stopPropagation(); onFileClose(file); }}
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              );
-            })}
-        </div>
-        <div className="pr-4">
-            <button 
-                onClick={onDownload} 
-                disabled={isDownloading}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] text-sm text-[#c9d1d9] rounded-md hover:bg-[#30363d] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {isDownloading ? (
-                    <>
-                        <Loader size={16} className="animate-spin" />
-                        Zipping...
-                    </>
-                ) : (
-                    <>
-                        <Download size={16} />
-                        Download ZIP
-                    </>
+    <div className="h-full w-full flex flex-col bg-background/50 backdrop-blur-sm">
+      {/* Tab Bar */}
+      <div className="flex-shrink-0 bg-surface/50 border-b border-white/5 flex justify-between items-center backdrop-blur-md">
+        <div className="flex overflow-x-auto hide-scrollbar">
+          {openFiles.map(file => {
+            const isActive = file === activeFile;
+            return (
+              <div
+                key={file}
+                className={`
+                    group flex items-center py-2.5 px-4 border-r border-white/5 cursor-pointer whitespace-nowrap transition-all duration-200
+                    ${isActive ? 'bg-primary/10 text-primary border-t-2 border-t-primary' : 'text-text-secondary hover:bg-white/5 hover:text-white border-t-2 border-t-transparent'}
+                  `}
+                onClick={() => onFileSelect(file)}
+              >
+                <FileIcon filename={file} />
+                <span className="text-sm ml-2 font-medium">{file.split('/').pop()}</span>
+                {dirtyFiles.has(file) && (
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent ml-2 animate-pulse" title="Unsaved changes" />
                 )}
-            </button>
+                <button
+                  className={`ml-2 p-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'hover:bg-primary/20 text-primary' : 'hover:bg-white/10 text-text-secondary'}`}
+                  onClick={e => { e.stopPropagation(); onFileClose(file); }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        <div className="pr-4 pl-4 border-l border-white/5">
+          <button
+            onClick={onDownload}
+            disabled={isDownloading}
+            className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary text-xs font-medium rounded-lg hover:bg-primary/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-primary/20"
+          >
+            {isDownloading ? (
+              <>
+                <Loader size={14} className="animate-spin" />
+                Zipping...
+              </>
+            ) : (
+              <>
+                <Download size={14} />
+                Download ZIP
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-auto">
+      <div className="flex-1 flex overflow-auto relative group">
         {activeFile ? (
           <>
-            <div className="sticky top-0 left-0 h-fit bg-[#0d1117] py-2.5 pr-4 pl-2 text-right text-[#8b949e] font-mono text-sm select-none" style={{ lineHeight: '1.5rem' }}>
+            {/* Line Numbers */}
+            <div className="sticky top-0 left-0 h-fit bg-surface/30 py-2.5 pr-4 pl-0 text-right text-text-muted font-mono text-sm select-none border-r border-white/5" style={{ lineHeight: '1.5rem', minWidth: '3rem' }}>
               {Array.from({ length: lineCount }, (_, i) => (
-                <div key={i}>{i + 1}</div>
+                <div key={i} className="hover:text-text-secondary transition-colors px-2">{i + 1}</div>
               ))}
             </div>
-            
+
+            {/* Editor Area */}
             <div className="flex-1 relative">
               <Editor
                 value={currentContent}
                 onValueChange={code => onUpdateContent(activeFile, code)}
                 highlight={highlightCode}
                 padding={10}
-                className="absolute inset-0 font-mono text-sm caret-white"
+                className="absolute inset-0 font-mono text-sm caret-primary"
+                textareaClassName="focus:outline-none"
                 style={{
-                  fontFamily: '"Fira Code", "Menlo", "Consolas", monospace',
+                  fontFamily: '"JetBrains Mono", "Fira Code", monospace',
                   fontSize: 14,
                   lineHeight: '1.5rem',
+                  backgroundColor: 'transparent',
                 }}
               />
             </div>
           </>
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-[#8b949e]">
-            Select a file to begin editing.
+          <div className="flex flex-col h-full w-full items-center justify-center text-text-muted space-y-4">
+            <div className="p-4 rounded-full bg-white/5 text-white/20">
+              <Code2 size={48} />
+            </div>
+            <p className="text-lg font-medium">Select a file to begin editing</p>
+            <p className="text-sm text-text-muted/60">Choose a file from the sidebar to view its content</p>
           </div>
         )}
       </div>

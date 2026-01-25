@@ -1,22 +1,50 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Import PrismJS theme for syntax highlighting */
-@import 'prismjs/themes/prism-okaidia.css';
+:root {
+  color-scheme: dark;
+}
 
-/* Custom scrollbar styling to match the dark theme */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@layer base {
+  body {
+    @apply bg-background text-text-primary antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface rounded-full border border-surface/50;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-700;
+  }
 }
-::-webkit-scrollbar-track {
-  background: #161b22;
-}
-::-webkit-scrollbar-thumb {
-  background: #30363d;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #444c56;
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent;
+  }
+  
+  .glass {
+    @apply bg-surface/30 backdrop-blur-md border border-white/10 shadow-xl;
+  }
+
+  .glass-card {
+    @apply bg-surface/40 backdrop-blur-lg border border-white/5 rounded-2xl shadow-2xl;
+  }
+
+  .glass-input {
+    @apply bg-surface/20 backdrop-blur border border-white/10 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300;
+  }
 }

@@ -40,22 +40,22 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
     }
     setActiveFile(filePath);
     if (!pinnedFiles.includes(filePath)) {
-        setPinnedFiles(prev => [...prev, filePath]);
+      setPinnedFiles(prev => [...prev, filePath]);
     }
   };
-  
+
   const handlePinToggle = (filePath: string) => {
-    setPinnedFiles(prev => 
-        prev.includes(filePath)
-            ? prev.filter(p => p !== filePath)
-            : [...prev, filePath]
+    setPinnedFiles(prev =>
+      prev.includes(filePath)
+        ? prev.filter(p => p !== filePath)
+        : [...prev, filePath]
     );
   };
 
   const handleCloseFile = (filePath: string) => {
     const newOpenFiles = openFiles.filter(file => file !== filePath);
     setOpenFiles(newOpenFiles);
-    
+
     if (activeFile === filePath) {
       setActiveFile(newOpenFiles.length > 0 ? newOpenFiles[newOpenFiles.length - 1] : null);
     }
@@ -65,30 +65,30 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
     setFileContents(prev => ({ ...prev, [filePath]: content }));
     setDirtyFiles(prev => new Set(prev).add(filePath));
   };
-  
+
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-        const modified_files = Array.from(dirtyFiles).map(path => ({
-            path,
-            content: fileContents[path]
-        }));
+      const modified_files = Array.from(dirtyFiles).map(path => ({
+        path,
+        content: fileContents[path]
+      }));
 
-        const blob = await downloadProjectAsZip(sessionId, modified_files);
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const repoName = analysisResult.repo_url.split('/').pop() || 'repository';
-        a.download = `${repoName}-modified.zip`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
+      const blob = await downloadProjectAsZip(sessionId, modified_files);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const repoName = analysisResult.repo_url.split('/').pop() || 'repository';
+      a.download = `${repoName}-modified.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
 
     } catch (error) {
-        console.error("Download failed:", error);
+      console.error("Download failed:", error);
     } finally {
-        setIsDownloading(false);
+      setIsDownloading(false);
     }
   };
 
@@ -116,7 +116,7 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
         e.preventDefault();
         const startPos = dimension === 'width' ? e.clientX : e.clientY;
         const startSize = dimension === 'width' ? sidebarWidth : panelHeight;
-        
+
         const onMouseMove = (moveEvent: MouseEvent) => handleResize(moveEvent, setter, startPos, startSize, dimension);
         const onMouseUp = () => {
           document.removeEventListener('mousemove', onMouseMove);
@@ -137,8 +137,8 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
     const sidebarResizer = document.getElementById('sidebar-resizer');
     const panelResizer = document.getElementById('panel-resizer');
 
-    let sidebarCleanup: () => void = () => {};
-    let panelCleanup: () => void = () => {};
+    let sidebarCleanup: () => void = () => { };
+    let panelCleanup: () => void = () => { };
 
     if (sidebarResizer && showSidebar) sidebarCleanup = setupResizer(sidebarResizer, setSidebarWidth, 'width');
     if (panelResizer) panelCleanup = setupResizer(panelResizer, setPanelHeight, 'height');
@@ -150,13 +150,13 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
   }, [sidebarWidth, panelHeight, showSidebar]);
 
   return (
-    <div className="w-full flex-1 flex overflow-hidden" ref={containerRef}>
-      <ActivityBar 
-        toggleSidebar={() => setShowSidebar(!showSidebar)} 
+    <div className="w-full flex-1 flex overflow-hidden glass rounded-t-2xl mx-4 mb-4 border border-white/5 shadow-2xl relative z-20" ref={containerRef}>
+      <ActivityBar
+        toggleSidebar={() => setShowSidebar(!showSidebar)}
         showSidebar={showSidebar}
         onChatClick={() => setActivePanelTab('chat')}
       />
-      
+
       {showSidebar && (
         <>
           <SideBar
@@ -165,35 +165,35 @@ export function AnalysisInterface({ analysisResult, sessionId }: AnalysisInterfa
             onFileClick={handleFileClick}
             activeFile={activeFile}
           />
-          <div id="sidebar-resizer" className="w-1.5 cursor-ew-resize bg-transparent hover:bg-[#2f81f7] transition-colors flex-shrink-0" />
+          <div id="sidebar-resizer" className="w-1.5 cursor-ew-resize bg-white/5 hover:bg-primary/50 transition-colors flex-shrink-0 z-30" />
         </>
       )}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
         <div className="flex-1 min-h-0">
-            <MainContent
-              openFiles={openFiles}
-              activeFile={activeFile}
-              onFileSelect={setActiveFile}
-              onFileClose={handleCloseFile}
-              fileContents={fileContents}
-              onUpdateContent={handleUpdateFileContent}
-              dirtyFiles={dirtyFiles}
-              onDownload={handleDownload}
-              isDownloading={isDownloading}
-            />
+          <MainContent
+            openFiles={openFiles}
+            activeFile={activeFile}
+            onFileSelect={setActiveFile}
+            onFileClose={handleCloseFile}
+            fileContents={fileContents}
+            onUpdateContent={handleUpdateFileContent}
+            dirtyFiles={dirtyFiles}
+            onDownload={handleDownload}
+            isDownloading={isDownloading}
+          />
         </div>
-        <div id="panel-resizer" className="h-1.5 cursor-ns-resize bg-transparent hover:bg-[#2f81f7] transition-colors flex-shrink-0" />
+        <div id="panel-resizer" className="h-1.5 cursor-ns-resize bg-white/5 hover:bg-primary/50 transition-colors flex-shrink-0 z-30" />
         <div className="flex-shrink-0">
-            <Panel
-              height={panelHeight}
-              activeTab={activePanelTab}
-              onTabChange={setActivePanelTab}
-              repoSummary={analysisResult.initial_summary}
-              sessionId={sessionId}
-              pinnedFiles={pinnedFiles}
-              onPinToggle={handlePinToggle}
-            />
+          <Panel
+            height={panelHeight}
+            activeTab={activePanelTab}
+            onTabChange={setActivePanelTab}
+            repoSummary={analysisResult.initial_summary}
+            sessionId={sessionId}
+            pinnedFiles={pinnedFiles}
+            onPinToggle={handlePinToggle}
+          />
         </div>
       </div>
     </div>

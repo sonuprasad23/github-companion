@@ -45,18 +45,18 @@ function TreeNodeComponent({ node, onFileClick, activeFile, level = 0 }: TreeNod
       <div>
         {!isRoot && (
           <div
-            className="flex items-center py-1 cursor-pointer hover:bg-[#21262d40] rounded"
+            className="flex items-center py-1.5 cursor-pointer hover:bg-white/5 rounded-md transition-colors text-text-secondary hover:text-white"
             style={{ paddingLeft: `${level * 12}px` }}
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            {isExpanded ? <ChevronDown size={16} className="mr-1 text-gray-400" /> : <ChevronRight size={16} className="mr-1 text-gray-400" />}
-            <Folder size={16} className="mr-2 text-yellow-400" />
-            <span className="text-sm">{node.name}</span>
+            {isExpanded ? <ChevronDown size={14} className="mr-1 opacity-70" /> : <ChevronRight size={14} className="mr-1 opacity-70" />}
+            <Folder size={14} className="mr-2 text-accent" />
+            <span className="text-sm font-medium">{node.name}</span>
           </div>
         )}
         {isExpanded && (
           <div>
-            {Object.values(node.children).sort((a,b) => (a.children ? -1 : 1) - (b.children ? -1 : 1) || a.name.localeCompare(b.name)).map(child => (
+            {Object.values(node.children).sort((a, b) => (a.children ? -1 : 1) - (b.children ? -1 : 1) || a.name.localeCompare(b.name)).map(child => (
               <TreeNodeComponent
                 key={child.path}
                 node={child}
@@ -75,7 +75,10 @@ function TreeNodeComponent({ node, onFileClick, activeFile, level = 0 }: TreeNod
   const isActive = node.path === activeFile;
   return (
     <div
-      className={`flex items-center py-1 cursor-pointer rounded ${isActive ? 'bg-[#21262d]' : 'hover:bg-[#21262d40]'}`}
+      className={`
+        flex items-center py-1.5 cursor-pointer rounded-md transition-all duration-200
+        ${isActive ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:bg-white/5 hover:text-white'}
+      `}
       style={{ paddingLeft: `${level * 12 + 12}px` }}
       onClick={() => onFileClick(node.path)}
     >
@@ -96,13 +99,13 @@ export function SideBar({ width, files, onFileClick, activeFile }: SideBarProps)
   const fileTree = buildFileTree(files);
   return (
     <div
-      className="h-full bg-[#161b22] border-r border-[#30363d] flex flex-col overflow-hidden select-none"
+      className="h-full bg-surface/50 backdrop-blur-md border-r border-white/5 flex flex-col overflow-hidden select-none"
       style={{ width: `${width}px` }}
     >
-      <div className="p-2 text-xs font-semibold text-[#8b949e] uppercase tracking-wider border-b border-[#30363d] flex-shrink-0">
-        Explorer
+      <div className="p-3 text-xs font-bold text-text-muted uppercase tracking-wider border-b border-white/5 flex-shrink-0 flex items-center justify-between">
+        <span>Explorer</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-1">
+      <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
         <TreeNodeComponent node={fileTree} onFileClick={onFileClick} activeFile={activeFile} />
       </div>
     </div>
